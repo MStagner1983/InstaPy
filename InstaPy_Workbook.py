@@ -5,11 +5,6 @@
 
 
 from instapy import InstaPy
-import time
-from selenium import webdriver
-import pandas as pd
-import requests
-from datetime import datetime
 from instapy.util import smart_run
 
 
