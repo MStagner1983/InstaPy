@@ -2,6 +2,15 @@
 # imports
 from instapy import InstaPy
 from instapy.util import smart_run
+import pandas as pd
+import smtplib
+import datetime
+from datetime import datetime as dt
+import time
+from email.message import EmailMessage
+from email.headerregistry import Address
+from email.message import EmailMessage
+import os
 
 
 
@@ -32,5 +41,44 @@ with smart_run(session):
     # activity
     session.like_by_tags(['waterfowlphotography', 'duckhunting', 'sitkagear', 'drakewaterfowl', 'wildlifephotographer', 'wildlifephotography'], amount=50)
 
+    # Get my followers 
+    
+    stagner_followers=session.grab_followers(username='mcstagner', amount='full', live_match=True, store_locally=True)
+    
+    # Get my following
+
+    stagner_following = session.grab_following(username="mcstagner", amount="full", live_match=True, store_locally=True)
+    
+    # Unfollowers
+
+    all_unfollowers, active_unfollowers = session.pick_unfollowers(username="mcstagner", compare_by="day", compare_track="first", live_match=False, store_locally=True, print_out=True)
 
 
+Insta=pd.read_csv(r'C:\Users\matth\Dropbox\InstaPy\Insta.csv')
+followers=len(stagner_followers)
+following=len(stagner_following)
+Insta.loc[datetime.datetime.now().strftime('%m-%d-%Y')]=[datetime.datetime.now().strftime('%m-%d-%Y'),followers, following]
+Insta.to_csv(r'C:\Users\matth\Dropbox\InstaPy\Insta.csv', index=False)
+
+t='{0:%m-%d-%Y}'.format(datetime.datetime.now())
+followers=len(stagner_followers)
+following=len(stagner_following)
+line1='Followers: ' + str(followers) 
+line2='Following: ' + str(following)
+
+gmail_user = "matthew.stagner@gmail.com"
+gmail_pwd = "TexasTech2018$$**"
+TO = 'matthew.stagner@gmail.com'
+SUBJECT = 'InstaPy Summary: '+  t 
+TEXT = 'Un-Followers: {}'.format(str(active_unfollowers))
+server = smtplib.SMTP('smtp.gmail.com', 587)
+server.ehlo()
+server.starttls()
+server.login(gmail_user, gmail_pwd)
+BODY = '\r\n'.join(['To: %s' % TO,
+        'From: %s' % gmail_user,
+        'Subject: %s' % SUBJECT,
+        '', TEXT])
+
+server.sendmail(gmail_user, [TO], BODY)
+print ('email sent')
